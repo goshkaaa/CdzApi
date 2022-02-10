@@ -1,3 +1,9 @@
+import hashlib
+import json
+
+import aiohttp
+from onlinetests.exceptions import *
+
 
 class MeshApi:
 	__login = "spottlight"
@@ -24,7 +30,7 @@ class MeshApi:
 				if session_response.status == 200:
 					return json.loads(await session_response.text())
 				else:
-					raise Exception("Ошибка авторизации!") #!!!!
+					raise AuthEception(await session_response.text())
 
 	async def get_tasks(self) -> list:
 		auth_data = await self.auth()
@@ -50,4 +56,4 @@ class MeshApi:
 				if tasks:
 					return tasks
 				else:
-					raise Exception("Тест не существует!") #!!!!
+					raise UnknownTestException

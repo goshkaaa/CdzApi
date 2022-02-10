@@ -1,5 +1,8 @@
 import json
+
 import aiohttp
+from onlinetests.exceptions import *
+
 
 class SkySmartApi:
 	__login = "nettstrex@gmail.com"
@@ -25,7 +28,7 @@ class SkySmartApi:
 				if task_responce.status == 200:
 					return 'Bearer '+ str(json.loads(await task_responce.text())["jwtToken"])
 				else:
-					raise Exception("Ошибка авторизации!") #!!!!
+					raise AuthEception(await task_responce.text())
 
 	async def get_room_hash(self, auth_token: str) -> str:
 		url = "https://api-edu.skysmart.ru/api/v1/task/start"
@@ -45,7 +48,7 @@ class SkySmartApi:
 				if room_hash:
 					return room_hash
 				else:
-					raise Exception("Не верный task_hash!") #!!!!
+					raise UnknownTestException("Wrong task_hash")
 
 	async def get_uuids(self, auth_token: str) -> list:
 		url = "https://api-edu.skysmart.ru/api/v1/lesson/join"
