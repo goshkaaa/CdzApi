@@ -18,7 +18,7 @@ class MeshApi:
 		self.test_type: str = test_type
 		self.test_variant: str = test_variant
 
-	async def auth(self, session: aiohttp.ClientSession) -> dict:
+	async def __auth(self, session: aiohttp.ClientSession) -> dict:
 		url: str = "https://uchebnik.mos.ru/api/sessions"
 		session_data: dict = {
 			"login": self.__login,
@@ -31,7 +31,7 @@ class MeshApi:
 				raise AuthException(await session_response.text())
 
 	async def get_tasks(self, session: aiohttp.ClientSession) -> list:
-		auth_data: dict = await self.auth(session)
+		auth_data: dict = await self.__auth(session)
 		url: str = "https://uchebnik.mos.ru/exam/rest/secure/testplayer/group"
 		request_data = {
 			"test_type": "training_test",

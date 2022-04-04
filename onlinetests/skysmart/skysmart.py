@@ -11,90 +11,94 @@ class SkySmartAnswer:
 		self.api = SkySmartApi(task_hash)
 
 	@staticmethod
-	def get_question(soup: BeautifulSoup) -> str:
+	def __get_question(soup: BeautifulSoup) -> str:
 		return soup.find("vim-instruction").get_text()
 
-	def get_task_answer(self, soup: BeautifulSoup) -> dict:
+	def __get_task_answer(self, soup: BeautifulSoup) -> dict[str, list]:
 		answers: list = []
 		if soup.find_all("vim-dnd-text-drags"):
-			answers += self.drag_and_drop(soup)
+			answers += self.__drag_and_drop(soup)
 
 		if soup.find_all("vim-select-answers"):
-			answers += self.select_answer(soup)
+			answers += self.__select_answer(soup)
 
 		if soup.find_all("vim-test-image"):
-			answers += self.image_answer(soup)
+			answers += self.__image_answer(soup)
 
 		if soup.find_all("vim-input-answers"):
-			answers += self.input_answer(soup)
+			answers += self.__input_answer(soup)
 
 		if soup.find_all("vim-strike-out"):
-			answers += self.strike_out_answer(soup)
+			answers += self.__strike_out_answer(soup)
 
 		if soup.find_all("vim-groups"):
-			answers += self.groups_answer(soup)
+			answers += self.__groups_answer(soup)
 
 		if soup.find_all("vim-dnd-image-set-drags"):
-			answers += self.image_drag_and_drop(soup)
+			answers += self.__image_drag_and_drop(soup)
 
 		if soup.find_all("vim-test"):
-			answers += self.test_answer(soup)
+			answers += self.__test_answer(soup)
 
 		if soup.find_all("vim-dnd-group"):
-			answers += self.group_drag_and_drop(soup)
+			answers += self.__group_drag_and_drop(soup)
 
 		if soup.find_all("math-input"):
-			answers += self.math_input_answer(soup)
+			answers += self.__math_input_answer(soup)
 
-		return {"question": self.get_question(soup), "answers": answers}
+		return {
+			"question": self.__get_question(soup), 
+			"answers": answers
+		}
 
-	async def get_answers(self):
+	async def get_answers(self) -> list[dict]: #переписать!
 		answers: list = []
+
 		async with aiohttp.ClientSession() as session:
-			auth_token: str = await self.api.auth(session)
-			for uuid in await self.api.get_uuids(session, auth_token):
-				html: str = await self.api.get_step_html(session, auth_token, uuid)
-				answers.append(self.get_task_answer(BeautifulSoup(html, 'html.parser')))
+			htmls: list = await self.api.get_htmls(session)
+		
+		for html in htmls:
+			soup: BeautifulSoup = BeautifulSoup(html["content"], "html.parser")
+			answers.append(self.__get_task_answer(soup)) 
+
 		return answers
 
 	@staticmethod
-	def math_input_answer(soup: BeautifulSoup) -> list:
+	def __math_input_answer(soup: BeautifulSoup) -> list[str]:
 		answers: list = []
 		for answer in soup.find_all("math-input-answer"):
 			answers.append(answer.get_text().strip("\n"))
 		return answers
 
 	@staticmethod
-	def group_drag_and_drop(soup: BeautifulSoup) -> list:
+	def __group_drag_and_drop(soup: BeautifulSoup) -> list[str]:
 		answers: list = []
 
 		for group in soup.find_all("vim-dnd-group-item"):
-			elements: list = []
-			group_name: str = group.get_text().strip('\n')
+			answer: str = group.get_text().strip("\n") + ":\n"
 			for answer_id in group.get("drag-ids").split(','):
 				group_element: str = soup.find("vim-dnd-group-drag", attrs={"answer-id": answer_id}).get_text()
-				elements.append(group_element.strip("\n"))
-			answer = {"group": group_name, "elements": elements}
-			answers.append(answer)
+				answer += group_element + "\n"
+			answers.append(answer[:-1]) #вырезаем последний \n
 
 		return answers
 
 	@staticmethod
-	def test_answer(soup: BeautifulSoup) -> list:
+	def __test_answer(soup: BeautifulSoup) -> list[str]:
 		answers: list = []
 		for answer in soup.find_all("vim-test-item", correct="true"):
 			answers.append(answer.get_text().strip("\n"))
 		return answers
 
 	@staticmethod
-	def image_drag_and_drop(soup: BeautifulSoup) -> list:
+	def __image_drag_and_drop(soup: BeautifulSoup) -> list[str]:
 		answers: list = []
 		for answer in soup.find_all("vim-dnd-image-set-drag"):
 			answers.append(answer.get_text().strip("\n"))
 		return answers
 
 	@staticmethod
-	def groups_answer(soup: BeautifulSoup) -> list:
+	def __groups_answer(soup: BeautifulSoup) -> list[str]:
 		answers: list = []
 		groups_items_list = soup.find_all("vim-groups-item")
 		for i in range(0, len(groups_items_list), 2):
@@ -104,21 +108,21 @@ class SkySmartAnswer:
 		return answers
 
 	@staticmethod
-	def strike_out_answer(soup: BeautifulSoup) -> list:
+	def __strike_out_answer(soup: BeautifulSoup) -> list[str]:
 		answers: list = []
 		for answer in soup.find_all("vim-strike-out-item", striked="true"):
 			answers.append(answer.get_text().strip("\n"))
 		return answers
 
 	@staticmethod
-	def input_answer(soup: BeautifulSoup) -> list:
+	def __input_answer(soup: BeautifulSoup) -> list[str]:
 		answers: list = []
 		for answer in soup.find_all("vim-input-item"):
 			answers.append(answer.get_text().strip("\n"))
 		return answers
 
 	@staticmethod
-	def image_answer(soup: BeautifulSoup) -> list:
+	def __image_answer(soup: BeautifulSoup) -> list[str]:
 		answers: list = []
 		for image_group_tag in soup.find_all("vim-test-image"):
 			count = 1
@@ -131,15 +135,15 @@ class SkySmartAnswer:
 		return answers
 
 	@staticmethod
-	def select_answer(soup: BeautifulSoup) -> list:
+	def __select_answer(soup: BeautifulSoup) -> list[str]:
 		answers: list = []
 		for answer in soup.find_all("vim-select-item", correct="true"):
 			answers.append(answer.get_text().strip("\n"))
 		return answers
 
 	@staticmethod
-	def drag_and_drop(soup: BeautifulSoup) -> list:
+	def __drag_and_drop(soup: BeautifulSoup) -> list[str]:
 		answers: list = []
-		for answer in soup.find_all("vim-dnd-text-drag"):
-			answers.append(answer.get_text().strip("\n"))
+		for answer in soup.find_all("vim-dnd-text-drags"):
+			answers.append(answer.get_text().strip("\n").replace("\n", " "))
 		return answers
