@@ -2,8 +2,9 @@ import json
 
 import aiohttp
 from fake_useragent import UserAgent
-from onlinetests.exceptions import *
-from models.skysmart_model import SkySmartModel
+from models import SkySmartModel
+
+from ..exceptions import *
 
 
 class SkySmartApi:

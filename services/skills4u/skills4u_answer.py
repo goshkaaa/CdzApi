@@ -3,7 +3,7 @@ import json
 
 import aiohttp
 
-from onlinetests.skills4u.skills4u_api import Skills4uApi
+from .skills4u_api import Skills4uApi
 
 class Skills4uAnswer:
 	def __init__(self, url):

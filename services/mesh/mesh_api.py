@@ -3,7 +3,7 @@ import json
 
 import aiohttp
 
-from onlinetests.exceptions import *
+from ..exceptions import *
 
 
 class MeshApi:

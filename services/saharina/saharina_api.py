@@ -1,6 +1,7 @@
-from bs4 import BeautifulSoup
 import aiohttp
-from onlinetests.exceptions import *
+from bs4 import BeautifulSoup
+
+from ..exceptions import *
 
 
 class SaharinaApi:

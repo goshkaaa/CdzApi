@@ -1,4 +1,4 @@
-from onlinetests.skysmart.skysmart_api import SkySmartApi
+from ..skysmart.skysmart_api import SkySmartApi
 
 class LectaApi(SkySmartApi):
 	_uuids_url: str = "https://backend-hw.lecta.ru/api/v1/task/preview"

@@ -5,7 +5,7 @@ import asyncio
 import aiohttp
 from bs4 import BeautifulSoup, element
 
-from onlinetests.exceptions import *
+from ..exceptions import *
 
 
 class Skills4uApi:

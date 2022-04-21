@@ -3,7 +3,7 @@ from base64 import b64decode
 import aiohttp
 from bs4 import BeautifulSoup, element
 
-from onlinetests.skysmart.skysmart_api import SkySmartApi
+from .skysmart_api import SkySmartApi
 
 
 class SkySmartAnswer:

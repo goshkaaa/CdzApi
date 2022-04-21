@@ -1,6 +1,6 @@
 import aiohttp
 import json
-from onlinetests.mesh.mesh_api import MeshApi
+from .mesh_api import MeshApi
 
 class MeshAnswer:
 	def __init__(self, test_type: str, test_variant: str):

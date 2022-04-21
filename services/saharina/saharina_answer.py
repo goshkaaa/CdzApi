@@ -1,6 +1,6 @@
 import aiohttp
 from bs4 import BeautifulSoup, element
-from onlinetests.saharina.saharina_api import SaharinaApi
+from .saharina_api import SaharinaApi
 
 class SaharinaAnswer:
 	def __init__(self, url: str):
