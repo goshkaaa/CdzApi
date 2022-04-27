@@ -1,19 +1,12 @@
 import asyncio
 from time import perf_counter
-from loader import *
-from services import SkySmartAnswer
+from .loader import *
+from .services import SkySmartAnswer
 import aiohttp
 
-async def main():
+async def main(url):
 	await init_db()
-	t1 = perf_counter()
-	answer = SkySmartAnswer("biloluregi")
-	print(await answer.get_answers())
-	print(
-		f"""
-Done in {round(perf_counter() - t1, 2)}		
-"""
-	)
+	answer = SkySmartAnswer(url.split("https://edu.skysmart.ru/student/")[1])
+	data = (await answer.get_answers())
 
-
-asyncio.get_event_loop().run_until_complete(main())
+	return data 

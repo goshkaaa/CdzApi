@@ -2,7 +2,7 @@ import json
 
 import aiohttp
 from fake_useragent import UserAgent
-from models import SkySmartModel
+from CdzApi.models import SkySmartModel
 
 from ..exceptions import *
 
